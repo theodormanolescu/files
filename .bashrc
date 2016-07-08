@@ -116,3 +116,35 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+function monteaza() {
+	if [ $# -eq 0 ]
+	  then
+	    echo "No arguments supplied"
+	    return
+	fi
+	if mount|grep $1 > /dev/null;
+		then
+		echo "allready mounted"
+		return
+	else
+		if [ $1 == "align1-dev" ]; then
+      HOST="$USER@$1.emag.network"
+		  else
+		  HOST="$USER@$1.emag.local"
+		fi
+		location="$HOME/$1/"
+		if [ -d "$HOME/$1" ]; then
+			echo "found directory"
+		else
+			mkdir "$HOME/$1"
+			echo "created directory"
+		fi
+		echo "mounting..."
+		if [[ $2 ]]; then
+			echo $2 | sshfs $HOST:$HOME $location -o follow_symlinks -o password_stdin -o reconnect
+		else
+			sshfs $HOST:$HOME $location -o follow_symlinks -o password_stdin -o reconnect
+		fi
+	fi
+}
